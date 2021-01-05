@@ -17,6 +17,11 @@ from bokeh.transform import cumsum
 
 
 def updateGraphBarChart(count, label,title):
+    """
+    Updates the page with a new vertical bar chart.
+    count gives the data for the column heights and label gives the label at the bottom.
+    Title gives the title of the graph
+    """
     source = ColumnDataSource(data=dict(label=label, count=count))
 
     plot = figure(title=title, x_range=label,
@@ -30,6 +35,12 @@ def updateGraphBarChart(count, label,title):
     layout.children = nlayout.children
 
 def updateGraphPieChart(count,label,title):
+    """
+    Updates the page with a new pie chart.
+    count gives the data for the column heights and label gives the label at the bottom.
+    Title gives the title of the graph.
+    Method is taken from the official bokeh documentation https://docs.bokeh.org/en/latest/docs/gallery/pie_chart.html
+    """
     x=0
     y=1
     radius=0.7
@@ -63,6 +74,9 @@ def updateGraphPieChart(count,label,title):
 
 
 def commitsPerPerson(repo):
+    """
+    Gets the amount of commits per person for a given repo
+    """
     repo = gh.get_repo(repo)
     contributors = repo.get_contributors()
     commitCounts = []
@@ -81,6 +95,9 @@ def commitsPerPerson(repo):
     updateGraphBarChart(counts, IDs,"Commits per Person")
 
 def forksPerMonth(repo):
+    """
+    Gets the amount of forks per month for a given repo
+    """
     repo = gh.get_repo(repo)
     forks = repo.get_forks()
 
@@ -96,6 +113,9 @@ def forksPerMonth(repo):
     updateGraphBarChart(forkCount,months,"Forks per Month")
 
 def percentageLanguages(repo):
+    """
+    Gets the percentage of languages for a given repo
+    """
     repo = gh.get_repo(repo)
     langs = repo.get_languages()
 
@@ -109,6 +129,9 @@ def percentageLanguages(repo):
     updateGraphBarChart(counts,lang,"Lines of Code per Language")
 
 def CvOIssues(repo):
+    """
+    Gets the amount of open and closed issues of a given repo
+    """
     repo = gh.get_repo(repo)
     issues = repo.get_issues(state="all")
 
@@ -126,6 +149,9 @@ def CvOIssues(repo):
 
 
 def stop():
+    """
+    stops the server
+    """
     sys.exit()
 
 
@@ -143,6 +169,9 @@ menu = [("Commits per Person", "Commits"), ("Forks per Month", "Forks"),
 dropdown = Dropdown(label="Graph type", button_type="default", menu=menu)
 
 def handler(event):
+    """
+    handles the events on the dropdown button
+    """
     if event.item=="Commits":
         commitsPerPerson(text.value)
     elif event.item=="Forks":

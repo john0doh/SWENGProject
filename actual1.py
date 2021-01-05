@@ -11,7 +11,7 @@ import bokeh
 from bokeh.io import curdoc
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import CustomJS, TextInput, ColumnDataSource, FixedTicker, LabelSet, Dropdown
-from bokeh.models.widgets import Button
+from bokeh.models.widgets import Button, PasswordInput, Paragraph
 from bokeh.layouts import column, row
 from bokeh.transform import cumsum
 
@@ -51,7 +51,7 @@ def updateGraphPieChart(count,label,title):
         d[label[i]] = count[i]
 
     print(d,len(d))
-
+    i = 0
     data = pd.Series(d).reset_index(name='value').rename(columns={'index':'state'})
 
     data['angle'] = data['value']/data['value'].sum() * 2*pi
@@ -154,20 +154,6 @@ def stop():
     """
     sys.exit()
 
-
-
-token = os.getenv('GITHUB_TOKEN')
-gh = Github(token)
-
-text = TextInput(value="", title="enter repo")
-
-stopbutton = Button(label="shut down", button_type="danger")
-stopbutton.on_click(stop)
-
-menu = [("Commits per Person", "Commits"), ("Forks per Month", "Forks"),
-        ("Lines of Code per Language","LOCLangs"),("Closed vs Open Issues","Issues")]
-dropdown = Dropdown(label="Graph type", button_type="default", menu=menu)
-
 def handler(event):
     """
     handles the events on the dropdown button
@@ -181,13 +167,47 @@ def handler(event):
     elif event.item=="Issues":
         CvOIssues(text.value)
 
-dropdown.on_click(handler)
+token = ""
+tokenNotFound = False
+try:
+    token = open("token.txt","r").read()
+except:
+    tokenNotFound = True
+    
+gh = Github(token)
 
-buttonRow = row(dropdown,stopbutton)
+badToken = False
+try:
+    gh.get_user("torvalds")
+except:
+    badToken = True
 
-layout = column(text, buttonRow)
-curdoc().add_root(layout)
+if(tokenNotFound):
+    p = Paragraph(text="""Token wasn't found. Please put in a valid Github API token into a file called token.txt.""",
+width=200, height=100)
+    curdoc().add_root(p)
+elif(badToken):
+    p = Paragraph(text="""Token in token.txt is invalid or bad in some way. Please put a valid Githib API token into the file.""",
+width=200, height=100)
+    curdoc().add_root(p)
+else:
+    text = TextInput(value="", title="enter repo")
+
+    stopbutton = Button(label="shut down", button_type="danger")
+    stopbutton.on_click(stop)
+
+    menu = [("Commits per Person", "Commits"), ("Forks per Month", "Forks"),
+        ("Lines of Code per Language","LOCLangs"),("Closed vs Open Issues","Issues")]
+    dropdown = Dropdown(label="Graph type", button_type="default", menu=menu)
+
+    dropdown.on_click(handler)
+
+    buttonRow = row(dropdown,stopbutton)
+
+    layout = column(text, buttonRow)
+
+    curdoc().add_root(layout)
 
 if __name__ == "__main__":
     #os.system("start http://localhost:5006/actual1")
-    os.system("bokeh serve actual1.py")
+    os.system("bokeh serve actual1.py --o")
